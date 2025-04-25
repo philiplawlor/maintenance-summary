@@ -1,0 +1,8 @@
+{
+    "mcp": {
+      "modules": [
+        "./.windsurf/mcp/mariadb-connector.mcp.js"
+      ]
+    }
+  }
+  
