@@ -1,6 +1,6 @@
 # Facilities Management Dashboard
 
-**Version:** 1.0.0 (2025-04-24)
+**Version:** 1.0.1 (2025-04-24)
 
 This project provides a full-stack Facilities Management Dashboard, designed to analyze and visualize maintenance and service request data from a MariaDB database. It consists of a Python FastAPI backend and a Flutter frontend.
 
