@@ -30,6 +30,7 @@ app.add_middleware(
 )
 
 from fastapi import Query, Request
+from typing import List, Dict
 
 DEBUG_MODE = os.getenv('DEBUG_MODE', 'false').lower() == 'true'
 
@@ -110,6 +111,19 @@ def preventative_maintenance(year: int = Query(2024), month: int = Query(8)):
         repeated = df['addition_request_info'].value_counts()
         likely_pm = repeated[repeated > 2].index.tolist()
         return {"preventative_maintenance_candidates": likely_pm}
+    except Exception as e:
+        print(f"[ERROR] Exception: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# New endpoint to get all (year, month) pairs with data
+@app.get("/stats/available_months")
+def available_months() -> List[Dict[str, int]]:
+    try:
+        with engine.connect() as conn:
+            query = "SELECT DISTINCT DATE_FORMAT(created_at, '%Y') AS year, DATE_FORMAT(created_at, '%m') AS month FROM summary ORDER BY year DESC, month DESC"
+            result = conn.execute(text(query))
+            months = [ {"year": int(row[0]), "month": int(row[1])} for row in result ]
+        return months
     except Exception as e:
         print(f"[ERROR] Exception: {e}")
         raise HTTPException(status_code=500, detail=str(e))

@@ -9,4 +9,4 @@ Add new feature requests/changes to the TODO.md file.
 
 Strikethrough items from the TODO.md list that are done, include the version number.
 
-Push changes to the repository when things are working nicely, tag the release.
+Push changes to the repository when things are working nicely, tag the release. Increment the versioning with every repo push. Version rules: major.minor.patch Major: goes up when there is a breaking change, minor: goes up when there is a new feature, patch: goes up when there is a bug fix.

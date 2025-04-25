@@ -38,16 +38,51 @@ class _DashboardScreenState extends State<DashboardScreen> {
   late Future<Map<String, dynamic>> trendsFuture;
   late Future<Map<String, dynamic>> preventativeFuture;
 
+  int selectedYear = defaultYear;
+  int selectedMonth = defaultMonth;
+  List<Map<String, int>> availableMonths = [];
+  bool loadingMonths = true;
+
   @override
   void initState() {
     super.initState();
-    overviewFuture = fetchStats('/stats/overview');
-    trendsFuture = fetchStats('/stats/trends');
-    preventativeFuture = fetchStats('/stats/preventative');
+    _fetchAvailableMonths();
+  }
+
+  void _fetchAvailableMonths() async {
+    setState(() { loadingMonths = true; });
+    try {
+      final url = Uri.parse('$backendBaseUrl/stats/available_months');
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        final List<dynamic> months = json.decode(response.body);
+        availableMonths = months.map<Map<String, int>>((m) => {
+          'year': m['year'],
+          'month': m['month'],
+        }).toList();
+        if (availableMonths.isNotEmpty) {
+          selectedYear = availableMonths.first['year']!;
+          selectedMonth = availableMonths.first['month']!;
+        }
+        _fetchAllStats();
+      }
+    } catch (e) {
+      // Handle error, fallback to defaults
+    } finally {
+      setState(() { loadingMonths = false; });
+    }
+  }
+
+  void _fetchAllStats() {
+    setState(() {
+      overviewFuture = fetchStats('/stats/overview');
+      trendsFuture = fetchStats('/stats/trends');
+      preventativeFuture = fetchStats('/stats/preventative');
+    });
   }
 
   Future<Map<String, dynamic>> fetchStats(String endpoint) async {
-    final url = Uri.parse('$backendBaseUrl$endpoint?year=$defaultYear&month=$defaultMonth');
+    final url = Uri.parse('$backendBaseUrl$endpoint?year=$selectedYear&month=$selectedMonth');
     final response = await http.get(url);
     if (response.statusCode == 200) {
       return json.decode(response.body);
@@ -56,8 +91,97 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
+  void _pickMonthYear(BuildContext context) async {
+    if (availableMonths.isEmpty) return;
+    // Show custom dialog for month/year selection
+    final picked = await showDialog<Map<String, dynamic>>(
+      context: context,
+      builder: (context) {
+        int tempYear = selectedYear;
+        int tempMonth = selectedMonth;
+        return StatefulBuilder(
+          builder: (context, setStateDialog) {
+            return AlertDialog(
+              title: const Text('Select Month and Year'),
+              content: SizedBox(
+                width: 250,
+                height: 200,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    DropdownButton<int>(
+                      value: tempYear,
+                      items: availableMonths.map((e) => e['year']).toSet().map((year) => DropdownMenuItem(
+                        value: year,
+                        child: Text(year.toString()),
+                      )).toList(),
+                      onChanged: (y) {
+                        if (y != null) {
+                          setStateDialog(() {
+                            tempYear = y;
+                            // Set tempMonth to the first available month for the selected year
+                            tempMonth = availableMonths.firstWhere((m) => m['year'] == y)['month'] ?? tempMonth;
+                          });
+                        }
+                      },
+                    ),
+                    DropdownButton<int>(
+                      value: tempMonth,
+                      items: availableMonths.where((m) => m['year'] == tempYear).map((m) => m['month']).toSet().map((month) => DropdownMenuItem(
+                        value: month,
+                        child: Text(month.toString().padLeft(2, '0')),
+                      )).toList(),
+                      onChanged: (m) {
+                        if (m != null) {
+                          setStateDialog(() {
+                            tempMonth = m;
+                          });
+                        }
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(<String, int>{'year': tempYear, 'month': tempMonth}),
+                  child: const Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+    if (picked != null && picked['year'] != null && picked['month'] != null) {
+      final int? year = picked['year'] is int ? picked['year'] : int.tryParse(picked['year'].toString());
+      final int? month = picked['month'] is int ? picked['month'] : int.tryParse(picked['month'].toString());
+      if (year != null && month != null) {
+        setState(() {
+          selectedYear = year;
+          selectedMonth = month;
+        });
+        _fetchAllStats();
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (loadingMonths) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+    if (availableMonths.isEmpty) {
+      return const Scaffold(
+        body: Center(child: Text('No data available for any month.')),
+      );
+    }
     return Scaffold(
       appBar: AppBar(
         title: const Text('Maintenance Summary Dashboard'),
@@ -66,6 +190,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
         padding: const EdgeInsets.all(16.0),
         child: ListView(
           children: [
+            Row(
+              children: [
+                Text('Selected: \\${selectedMonth.toString().padLeft(2, '0')}/$selectedYear', style: const TextStyle(fontSize: 16)),
+                const SizedBox(width: 12),
+                ElevatedButton.icon(
+                  onPressed: () => _pickMonthYear(context),
+                  icon: const Icon(Icons.date_range),
+                  label: const Text('Change Month/Year'),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
             FutureBuilder<Map<String, dynamic>>(
               future: overviewFuture,
               builder: (context, snapshot) {

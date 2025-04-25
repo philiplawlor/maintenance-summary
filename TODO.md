@@ -1,6 +1,8 @@
 # TODO List
 
-- [ ] Add month/year picker to frontend dashboard
+- [x] Add month/year picker to frontend dashboard ~~1.1.0~~
+- [x] Limit date picker to months with data ~~1.2.0~~
+- [ ] Create a feature to provide a more friendly interpretation of the preventative Maintenance suggestions. ie "A/C Not working" updated to "Create a PM plan to service all locations A/C units"
 - [ ] Enhance dashboard charts and analytics
 - [ ] Add user authentication to backend and frontend
 - [ ] Set up CI/CD for automated testing and deployment
