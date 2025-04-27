@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.4 (2025-04-27)
+- Added unified `run` script in project root for a single start command
+- Documented `run` script usage in README
+
 ## 1.2.3 (2025-04-27)
 - Removed unused `material.dart` import in `widget_test.dart`
 - Updated widget test to validate `DashboardScreen`
