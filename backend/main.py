@@ -20,6 +20,12 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 from fastapi.middleware.cors import CORSMiddleware
 
+# Friendly mapping for preventative maintenance suggestions
+FRIENDLY_PM_SUGGESTIONS = {
+    "A/C Not working": "Create a PM plan to service all locations A/C units",
+}
+
+
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
@@ -110,7 +116,9 @@ def preventative_maintenance(year: int = Query(2024), month: int = Query(8)):
             return {"preventative_maintenance_candidates": []}
         repeated = df['addition_request_info'].value_counts()
         likely_pm = repeated[repeated > 2].index.tolist()
-        return {"preventative_maintenance_candidates": likely_pm}
+        # Apply friendly descriptions
+        friendly = [FRIENDLY_PM_SUGGESTIONS.get(item, item) for item in likely_pm]
+        return {"preventative_maintenance_candidates": friendly}
     except Exception as e:
         print(f"[ERROR] Exception: {e}")
         raise HTTPException(status_code=500, detail=str(e))
