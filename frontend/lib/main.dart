@@ -298,7 +298,7 @@ class StatTile extends StatelessWidget {
           children: [
             Text(title, style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 8),
-            ...content.map((line) => Text(line)).toList(),
+            ...content.map((line) => Text(line)),
           ],
         ),
       ),

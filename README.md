@@ -1,6 +1,6 @@
 # Facilities Management Dashboard
 
-**Version:** 1.2.1 (2025-04-24)
+**Version:** 1.2.3 (2025-04-27)
 
 This project provides a full-stack Facilities Management Dashboard, designed to analyze and visualize maintenance and service request data from a MariaDB database. It consists of a Python FastAPI backend and a Flutter frontend.
 
@@ -81,6 +81,12 @@ The MCP (Model Context Protocol) server enables advanced IDE, automation, and AI
 ---
 
 ## Setup
+
+### Environment Variables
+1. Copy `.env.sample` to `.env` in the root directory and fill in the required values.
+2. Ensure `.env` is excluded from version control.
+
+
 ### Backend
 1. Create and activate a virtual environment:
    ```bash

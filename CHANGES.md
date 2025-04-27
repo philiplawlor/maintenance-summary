@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.2.3 (2025-04-27)
+- Removed unused `material.dart` import in `widget_test.dart`
+- Updated widget test to validate `DashboardScreen`
+
+## 1.2.2 (2025-04-27)
+- Added `.env.sample` to project root for sample environment configuration
+
 ## 1.2.1 (2025-04-24)
 - Month/Year picker now fully interactive and robust (StatefulBuilder, type-safe, instant dashboard update)
 - Type safety and UI update bugs fixed in frontend

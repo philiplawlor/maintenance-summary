@@ -16,6 +16,8 @@
 ---
 
 ### Project Management Rules
+- ~~Add `.env.sample` for environment configuration **in 1.2.2**~~
+
 - Track changes with a version number in the README.md file (major.minor.patch format)
 - Always update the README.md file with any changes made to the codebase
 - Document changes between versions in CHANGES.md
